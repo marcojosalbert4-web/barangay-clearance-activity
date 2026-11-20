@@ -1,0 +1,156 @@
+<div class="page-wrapper">
+  <header class="page-header">
+    <h1>Barangay Clearance Request Form</h1>
+    <p>Fill out your details below to generate a live clearance preview.</p>
+  </header>
+
+  <!-- Status Banner driven by statusChanges -->
+  <div
+    class="status-banner"
+    [class.status-valid]="formStatus === 'VALID'"
+    [class.status-invalid]="formStatus === 'INVALID'"
+  >
+    <strong>Status ({{ formStatus }}):</strong> {{ statusMessage }}
+  </div>
+
+  <div class="grid-layout">
+    <!-- Left Column: Reactive Form -->
+    <form [formGroup]="clearanceForm" (ngSubmit)="onSubmit()" class="card form-card" novalidate>
+      <h2>Applicant Information</h2>
+
+      <div class="form-group">
+        <label for="fullName">Full Name *</label>
+        <input
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          placeholder="e.g., Juan Dela Cruz"
+        />
+        <small class="error-text" *ngIf="f['fullName'].touched && f['fullName'].hasError('required')">
+          Full name is required.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="birthdate">Birthdate *</label>
+        <input id="birthdate" type="date" formControlName="birthdate" />
+        <small class="error-text" *ngIf="f['birthdate'].touched && f['birthdate'].hasError('required')">
+          Birthdate is required.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address *</label>
+        <input
+          id="address"
+          type="text"
+          formControlName="address"
+          placeholder="Purok / Street / Barangay / Municipality"
+        />
+        <small class="error-text" *ngIf="f['address'].touched && f['address'].hasError('required')">
+          Address is required.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="contactNumber">Contact Number (09XXXXXXXXX) *</label>
+        <input
+          id="contactNumber"
+          type="text"
+          maxlength="11"
+          formControlName="contactNumber"
+          placeholder="09123456789"
+        />
+        <small
+          class="error-text"
+          *ngIf="f['contactNumber'].touched && f['contactNumber'].hasError('required')"
+        >
+          Contact number is required.
+        </small>
+        <small
+          class="error-text"
+          *ngIf="f['contactNumber'].touched && f['contactNumber'].hasError('invalidPhMobile')"
+        >
+          {{ f['contactNumber'].getError('invalidPhMobile') }}
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="purpose">Purpose *</label>
+        <select id="purpose" formControlName="purpose">
+          <option value="" disabled>-- Select Purpose --</option>
+          <option *ngFor="let option of purposeOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+        <small class="error-text" *ngIf="f['purpose'].touched && f['purpose'].hasError('required')">
+          Please select a purpose.
+        </small>
+      </div>
+
+      <!-- Conditional "Others" Input -->
+      <div class="form-group" *ngIf="f['purpose'].value === 'Others'">
+        <label for="otherPurpose">Specify Purpose (Others) *</label>
+        <input
+          id="otherPurpose"
+          type="text"
+          formControlName="otherPurpose"
+          placeholder="Enter specific purpose"
+        />
+        <small
+          class="error-text"
+          *ngIf="f['otherPurpose'].touched && f['otherPurpose'].hasError('required')"
+        >
+          Please specify your purpose when "Others" is selected.
+        </small>
+      </div>
+
+      <div class="button-row">
+        <button type="submit" [disabled]="clearanceForm.invalid" class="btn-primary">
+          Submit Request
+        </button>
+        <button type="button" (click)="onReset()" class="btn-secondary">
+          Clear Form
+        </button>
+      </div>
+    </form>
+
+    <!-- Right Column: Live Preview Card -->
+    <aside class="card preview-card">
+      <div class="preview-badge">LIVE PREVIEW</div>
+      <h2>Barangay Clearance Summary</h2>
+      <p class="preview-subtitle">Updates automatically as you type</p>
+
+      <dl class="preview-list">
+        <div>
+          <dt>Full Name</dt>
+          <dd>{{ f['fullName'].value || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Birthdate</dt>
+          <dd>{{ f['birthdate'].value || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Address</dt>
+          <dd>{{ f['address'].value || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Contact Number</dt>
+          <dd>{{ f['contactNumber'].value || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Purpose</dt>
+          <dd>{{ resolvedPurpose }}</dd>
+        </div>
+      </dl>
+
+      <div class="submitted-box" *ngIf="submittedData">
+        <h3>Request Recorded</h3>
+        <p>
+          Clearance request for <strong>{{ submittedData['fullName'] }}</strong>
+          ({{ submittedData['purpose'] }}) has been prepared for processing.
+        </p>
+      </div>
+    </aside>
+  </div>
+</div>
